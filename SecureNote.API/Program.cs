@@ -56,6 +56,7 @@ builder.Services.AddScoped<INoteRepository, NoteRepository>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IEncryptionService, AesEncryptionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<INoteService, NoteService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -63,18 +64,17 @@ builder.Services.AddEndpointsApiExplorer();
 // 5. Swagger Konfigürasyonu (Düzeltildi)
 builder.Services.AddSwaggerGen(c =>
 {
-    // "Bearer" þemasý tanýmlanýyor
+    // Mühendislik Dokunuþu: Kullanýcýyý doðru format için yönlendiriyoruz.
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
 
-    // Bütün endpointlerde bu güvenlik þemasýnýn geçerli olduðu belirtiliyor
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
         {
             new OpenApiSecurityScheme
@@ -83,9 +83,13 @@ builder.Services.AddSwaggerGen(c =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+
             },
-            new string[] {}
+            new List<string>()
         }
     });
 });
@@ -100,7 +104,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// --- KRÝTÝK SIRALAMA ---
+// --- KRÝTÝK SIRALAMA --- 
 app.UseAuthentication(); // Kimlik Doðrulama
 app.UseAuthorization();  // Yetkilendirme
 // -----------------------
