@@ -25,7 +25,7 @@ namespace SecureNote.Application.Services
             _configuration = configuration;
         }
 
-        public async Task<User> RegisterAsync(RegisterRequest request)
+        public async Task<UserDto> RegisterAsync(RegisterRequest request)
         {
             // Validasyon katmanı (FluentValidation) Email'in null olmadığını garanti eder.
             // Derleyiciye "!" ile bunu bildiriyoruz.
@@ -48,8 +48,17 @@ namespace SecureNote.Application.Services
 
             // 4. Kayıt
             await _userRepository.AddAsync(newUser);
-            return newUser;
+            return new UserDto
+            {
+                Id = newUser.Id,
+                Username = newUser.Username!,
+                Email = newUser.Email!,
+                CreatedOn = DateTime.UtcNow,
+            };
+
+
         }
+             // User entity'sini DTO'ya dönüştürme
 
         // --- LOGIN METODU ---
         public async Task<string> LoginAsync(string email, string password)

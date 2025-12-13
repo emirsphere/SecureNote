@@ -7,7 +7,7 @@ namespace SecureNote.Application.Interfaces
     public interface IAuthService
     {
         // Kayıt olma işlemi. Geriye oluşturulan User'ı dönsün (veya sadece başarılı bilgisini).
-        Task<User> RegisterAsync(RegisterRequest request);
+        Task<UserDto> RegisterAsync(RegisterRequest request);
 
         // Giriş yapma işlemi. Geriye JWT Token (string) dönecek.
         Task<string> LoginAsync(string email, string password);
