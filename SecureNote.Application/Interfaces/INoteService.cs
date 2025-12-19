@@ -9,7 +9,7 @@ namespace SecureNote.Application.Interfaces
     {
         Task<ResponseNote> CreateNoteAsync(NoteDto request, Guid userId);
         Task<IReadOnlyList<ResponseNote>> GetNotesByUserIdAsync(Guid userId);
-        Task UpdateNoteAsync(UpdateNoteRequest request, Guid userId);
+        Task UpdateNoteAsync(Guid noteId, UpdateNoteRequest request, Guid userId);
         Task DeleteNoteAsync(Guid noteId, Guid userId);
     }
 }

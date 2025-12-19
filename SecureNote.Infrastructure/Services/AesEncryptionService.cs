@@ -3,15 +3,27 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using SecureNote.Application.Interfaces;
-
+using Microsoft.Extensions.Configuration;
 namespace SecureNote.Infrastructure.Services
 {
     public class AesEncryptionService : IEncryptionService
     {
-        // Bu anahtar senin kasanın anahtarıdır. 32 karakter (256-bit) olmalı.
-        // Gerçek hayatta bunu "appsettings.json" veya Environment Variable'dan okuruz.
-        private readonly string _key = "Ew!Sb&9Xz#2qW@5tY8rU*1oP$4mN^7cL";
+        private readonly string _key;
+        public AesEncryptionService(IConfiguration configuration)
+        {
+            var key = configuration["EncryptionSettings:Key"];
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new InvalidOperationException("EncryptionSettings:Key değeri appsettings.json dosyasında bulunamadı.");
+            }
 
+            if (key.Length < 32)
+            {
+                throw new InvalidOperationException("Şifreleme anahtarı en az 32 karakter (256-bit) olmalıdır.");
+            }
+            _key = key;
+        }
+        
         public string Encrypt(string plainText)
         {
             // AES algoritmasını oluştur

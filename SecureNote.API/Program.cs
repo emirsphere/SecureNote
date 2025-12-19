@@ -1,9 +1,10 @@
-using FluentValidation;
+ï»¿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models; // HATA ÇÖZÜMÜ 1: Swagger modelleri için gerekli
+using Microsoft.OpenApi.Models;
+using SecureNote.API.Middleware;
 using SecureNote.Application.Interfaces;
 using SecureNote.Application.Services;
 using SecureNote.Application.Validators;
@@ -13,7 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Veritabaný Baðlantýsý (Null Check ile Güvenli Hale Getirildi)
+// 1. VeritabanÄ± BaÄŸlantÄ±sÄ±
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -24,8 +25,7 @@ builder.Services.AddDbContext<SecureNoteDbContext>(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
-// 3. JWT Authentication Ayarlarý
-// HATA ÇÖZÜMÜ 2: SecretKey null gelirse uygulama patlasýn (Null Check)
+// 3. JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"]
     ?? throw new InvalidOperationException("JwtSettings:SecretKey is missing in appsettings.json");
@@ -45,11 +45,11 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) // Artýk null olamaz
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
 
-// 4. Dependency Injection (Baðýmlýlýklar)
+// 4. Dependency Injection
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<INoteRepository, NoteRepository>();
@@ -61,10 +61,9 @@ builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// 5. Swagger Konfigürasyonu (Düzeltildi)
+// 5. Swagger KonfigÃ¼rasyonu
 builder.Services.AddSwaggerGen(c =>
 {
-    // Mühendislik Dokunuþu: Kullanýcýyý doðru format için yönlendiriyoruz.
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
@@ -87,7 +86,6 @@ builder.Services.AddSwaggerGen(c =>
                 Scheme = "oauth2",
                 Name = "Bearer",
                 In = ParameterLocation.Header,
-
             },
             new List<string>()
         }
@@ -95,6 +93,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// ðŸ”´ KRÄ°TÄ°K: Exception Handling Middleware en baÅŸa gelmelidir!
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -104,9 +105,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// --- KRÝTÝK SIRALAMA --- 
-app.UseAuthentication(); // Kimlik Doðrulama
-app.UseAuthorization();  // Yetkilendirme
+// --- KRÄ°TÄ°K SIRALAMA --- 
+app.UseAuthentication();
+app.UseAuthorization();
 // -----------------------
 
 app.MapControllers();

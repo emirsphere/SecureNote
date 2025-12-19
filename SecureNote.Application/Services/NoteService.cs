@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq; // Select (Dönüşüm) için gerekli
+using System.Linq;
 using System.Threading.Tasks;
 using SecureNote.Application.DTOs;
+using SecureNote.Application.Exceptions;
 using SecureNote.Application.Interfaces;
 using SecureNote.Domain.Entities;
 
@@ -21,6 +22,13 @@ namespace SecureNote.Application.Services
 
         public async Task<ResponseNote> CreateNoteAsync(NoteDto request, Guid userId)
         {
+            // Validation
+            if (string.IsNullOrWhiteSpace(request.Title))
+                throw new ValidationException("Not başlığı boş olamaz.");
+
+            if (string.IsNullOrWhiteSpace(request.Content))
+                throw new ValidationException("Not içeriği boş olamaz.");
+
             var encryptedContent = _encryptionService.Encrypt(request.Content);
 
             var newNote = new Note
@@ -35,7 +43,7 @@ namespace SecureNote.Application.Services
             {
                 Id = newNote.Id,
                 Title = newNote.Title,
-                Content = request.Content, // Decrypted content
+                Content = request.Content,
                 CreatedOn = newNote.CreatedOn
             };
         }
@@ -51,9 +59,9 @@ namespace SecureNote.Application.Services
                 {
                     decryptedContent = _encryptionService.Decrypt(note.Content);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    decryptedContent = "[Şifre Çözülemedi / Veri Bozuk]";
+                    throw new AppException($"Not şifrelemesi çözülemedi. Not ID: {note.Id}");
                 }
 
                 return new ResponseNote
@@ -68,22 +76,35 @@ namespace SecureNote.Application.Services
             return noteResponses;
         }
 
-        public async Task UpdateNoteAsync(UpdateNoteRequest request, Guid userId)
+        public async Task UpdateNoteAsync(Guid noteId, UpdateNoteRequest request, Guid userId)
         {
-            var note = await _noteRepository.GetByIdAsync(request.Id);
-            if (note == null) throw new Exception("Not bulunamadı.");
-            if (note.UserId != userId) throw new Exception("Bu işlem için yetkiniz yok.");
+            // Validation
+            if (string.IsNullOrWhiteSpace(request.Title))
+                throw new ValidationException("Not başlığı boş olamaz.");
+
+            if (string.IsNullOrWhiteSpace(request.Content))
+                throw new ValidationException("Not içeriği boş olamaz.");
+
+            var note = await _noteRepository.GetByIdAsync(noteId);
+            if (note == null)
+                throw new NotFoundException("Not bulunamadı.");
+
+            if (note.UserId != userId)
+                throw new UnauthorizedException("Bu işlem için yetkiniz yok.");
 
             note.Title = request.Title;
             note.Content = _encryptionService.Encrypt(request.Content);
             await _noteRepository.UpdateAsync(note);
         }
 
-        public async Task DeleteNoteAsync (Guid noteId, Guid userId)
+        public async Task DeleteNoteAsync(Guid noteId, Guid userId)
         {
             var note = await _noteRepository.GetByIdAsync(noteId);
-            if (note == null) throw new Exception("Not bulunamadı.");
-            if(note.UserId != userId) throw new Exception("Bu işlem için yetkiniz yok.");
+            if (note == null)
+                throw new NotFoundException("Not bulunamadı.");
+
+            if (note.UserId != userId)
+                throw new UnauthorizedException("Bu işlem için yetkiniz yok.");
 
             await _noteRepository.DeleteAsync(note);
         }

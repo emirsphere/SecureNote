@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace SecureNote.API.Controllers
 {
-    [Authorize] // DİKKAT: Bu kapıdaki güvenlik görevlisidir. Token'ı olmayan giremez!
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class NoteController : ControllerBase
@@ -18,88 +18,90 @@ namespace SecureNote.API.Controllers
             _noteService = noteService;
         }
 
-        // GET api/note (Kullanıcının kendi notlarını getirir)
-        [HttpGet("get notes")]
+        /// <summary>
+        /// Kullanıcının kendi notlarını getirir
+        /// </summary>
+        /// <returns>Not listesi</returns>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetMyNotes()
         {
-            try
-            {
-                // 1. Token'dan ID'yi Oku (Kim bu adam?)
-                var userId = GetUserIdFromToken();
-
-                // 2. Servise Git (Notları getir)
-                var notes = await _noteService.GetNotesByUserIdAsync(userId);
-
-                return Ok(notes);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromToken();
+            var notes = await _noteService.GetNotesByUserIdAsync(userId);
+            return Ok(notes);
         }
 
-        // POST api/note (Yeni not ekle)
-        [HttpPost ("create post")]
+        /// <summary>
+        /// Yeni not oluşturur
+        /// </summary>
+        /// <param name="request">Not bilgileri</param>
+        /// <returns>Oluşturulan not</returns>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateNote([FromBody] NoteDto request)
         {
-            try
-            {
-                var userId = GetUserIdFromToken();
-
-                var createdNote = await _noteService.CreateNoteAsync(request, userId);
-
-                // 201 Created ve oluşturulan notun kendisi
-                return CreatedAtAction(nameof(GetMyNotes), new { id = createdNote.Id }, createdNote);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromToken();
+            var createdNote = await _noteService.CreateNoteAsync(request, userId);
+            return CreatedAtAction(nameof(GetMyNotes), new { id = createdNote.Id }, createdNote);
         }
 
-        // PUT api/note (Not güncelle)
-        [HttpPut("update note")]
-        public async Task<IActionResult> UpdateNote([FromBody] UpdateNoteRequest request)
+        /// <summary>
+        /// Not günceller
+        /// </summary>
+        /// <param name="id">Not ID'si</param>
+        /// <param name="request">Güncellenen not bilgileri</param>
+        /// <returns>Başarılı mesajı</returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateNote(Guid id, [FromBody] UpdateNoteRequest request)
         {
-            try
-            {
-                var userId = GetUserIdFromToken();
-                await _noteService.UpdateNoteAsync(request, userId);
-
-                return Ok(new { message = "Not başarıyla güncellendi." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromToken();
+            await _noteService.UpdateNoteAsync(id, request, userId);
+            return Ok(new { message = "Not başarıyla güncellendi." });
         }
 
-        // DELETE api/note/{id} (Not sil)
+        /// <summary>
+        /// Not siler
+        /// </summary>
+        /// <param name="id">Not ID'si</param>
+        /// <returns>Başarılı mesajı</returns>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteNote(Guid id)
         {
-            try
-            {
-                var userId = GetUserIdFromToken();
-                await _noteService.DeleteNoteAsync(id, userId);
-
-                return Ok(new { message = "Not başarıyla silindi." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromToken();
+            await _noteService.DeleteNoteAsync(id, userId);
+            return Ok(new { message = "Not başarıyla silindi." });
         }
 
-        // --- YARDIMCI METOT ---
-        // Token'ın içindeki "NameIdentifier" (bizim ID'miz) claim'ini okur.
+        /// <summary>
+        /// Token'dan kullanıcı ID'sini okur
+        /// </summary>
+        /// <returns>Kullanıcı ID'si</returns>
+        /// <exception cref="UnauthorizedException">Token geçersiz ise</exception>
         private Guid GetUserIdFromToken()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
             if (userIdClaim == null)
             {
-                throw new Exception("Token geçersiz: Kullanıcı ID bulunamadı.");
+                throw new SecureNote.Application.Exceptions.UnauthorizedException(
+                    "Token geçersiz: Kullanıcı ID bulunamadı.");
             }
 
             return Guid.Parse(userIdClaim.Value);
