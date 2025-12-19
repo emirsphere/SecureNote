@@ -59,7 +59,7 @@ namespace SecureNote.Application.Services
                 {
                     decryptedContent = _encryptionService.Decrypt(note.Content);
                 }
-                catch (Exception ex)
+                catch
                 {
                     throw new AppException($"Not şifrelemesi çözülemedi. Not ID: {note.Id}");
                 }
