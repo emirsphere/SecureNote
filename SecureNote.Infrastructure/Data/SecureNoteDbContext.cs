@@ -14,6 +14,7 @@ namespace SecureNote.Infrastructure.Data
         // Veritabanındaki Tablolarımız
         public DbSet<User> Users { get; set; }
         public DbSet<Note> Notes { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         // İlişkileri ve kısıtlamaları burada ince ayar yaparız (Fluent API).
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,11 +39,22 @@ namespace SecureNote.Infrastructure.Data
 
             // İlişki Tanımı: Bir User'ın çok Note'u vardır.
             modelBuilder.Entity<Note>()
-                .HasOne(n => n.User)     
+                .HasOne(n => n.User)
                 .WithMany(u => u.Notes)
                 .HasForeignKey(n => n.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Kullanıcı silinirse notları da silinsin.
-
+                .OnDelete(DeleteBehavior.Restrict); // Kullanıcı silinirse notları da silinsin.
+            modelBuilder.Entity<Note>()
+                .HasOne(n => n.Category)
+                .WithMany(c => c.Note)
+                .HasForeignKey(n => n.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Categories)
+                .HasForeignKey(c => c.UserId);
+            modelBuilder.Entity<Category>()
+                .Property(c => c.CategoryName)
+                .HasMaxLength(100);
             base.OnModelCreating(modelBuilder);
         }
     }
