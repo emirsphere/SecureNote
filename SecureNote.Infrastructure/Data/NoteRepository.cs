@@ -19,6 +19,7 @@ namespace SecureNote.Infrastructure.Data
             // SQL Karşılığı: SELECT * FROM Notes WHERE UserId = '...'
             return await _dbContext.Notes
                 .Where(note => note.UserId == userId)
+                .Include(note => note.Category) // İlişkili Category verisini de dahil et
                 .ToListAsync();
         }
     }
