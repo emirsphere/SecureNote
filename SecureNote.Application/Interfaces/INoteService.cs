@@ -11,5 +11,6 @@ namespace SecureNote.Application.Interfaces
         Task<IReadOnlyList<ResponseNote>> GetNotesByUserIdAsync(Guid userId);
         Task UpdateNoteAsync(Guid noteId, UpdateNoteRequest request, Guid userId);
         Task DeleteNoteAsync(Guid noteId, Guid userId);
+        Task<ResponseNote> GetNoteByIdAsync(Guid noteId, Guid userId);
     }
 }

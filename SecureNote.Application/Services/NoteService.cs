@@ -76,6 +76,25 @@ namespace SecureNote.Application.Services
             return noteResponses;
         }
 
+        public async Task<ResponseNote> GetNoteByIdAsync(Guid noteId, Guid userId)
+        {
+            var encryptednote = await _noteRepository.GetByIdAsync(noteId);
+            if (encryptednote == null)
+                throw new NotFoundException("Not bulunamadı.");
+            if (encryptednote.UserId != userId)
+                throw new UnauthorizedException("Bu işlem için yetkiniz yok.");
+            string decryptedContent;
+            try
+            {
+                decryptedContent = _encryptionService.Decrypt(encryptednote.Content);
+            }
+            catch
+            {
+                throw new AppException("Not şifrelemesi çözülemedi.");
+            }
+
+        }
+
         public async Task UpdateNoteAsync(Guid noteId, UpdateNoteRequest request, Guid userId)
         {
             // Validation
