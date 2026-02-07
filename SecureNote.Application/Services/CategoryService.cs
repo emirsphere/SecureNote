@@ -55,7 +55,7 @@ namespace SecureNote.Application.Services
             if (category == null || category.UserId != userId)
                 throw new NotFoundException("Kategori bulunamadı.");
             if (category.UserId != userId)
-                throw new UnauthorizedAccessException("Bu kategoriye erişim yetkiniz yok.");
+                throw new UnauthorizedException("Bu kategoriye erişim yetkiniz yok.");
             if (string.IsNullOrWhiteSpace(request.CategoryName))
                 throw new ValidationException("Kategori adı boş olamaz.");
 
@@ -72,7 +72,7 @@ namespace SecureNote.Application.Services
             if (category == null || category.UserId != userId)
                 throw new NotFoundException("Kategori bulunamadı.");
             if (category.UserId != userId)
-                throw new UnauthorizedAccessException("Bu kategoriye erişim yetkiniz yok.");
+                throw new UnauthorizedException("Bu kategoriye erişim yetkiniz yok.");
 
             await _categoryRepository.DeleteAsync(category);
 

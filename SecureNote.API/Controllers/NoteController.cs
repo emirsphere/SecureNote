@@ -106,5 +106,23 @@ namespace SecureNote.API.Controllers
 
             return Guid.Parse(userIdClaim.Value);
         }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetNoteById(Guid id)
+        {
+            // 1. Kimlik Tespiti: İsteği yapan kişi kim? Token'dan ID'sini kopartıyoruz.
+            var userId = GetUserIdFromToken();
+
+            // 2. Servis Çağrısı: Tüm o şifre çözme ve yetki mantığını kapsayan servisi çağırıyoruz.
+            var note = await _noteService.GetNoteByIdAsync(id, userId);
+
+            // 3. Başarılı Yanıt: 200 OK Status Code ile çözülmüş veriyi (ResponseNote) dönüyoruz.
+            return Ok(note);
+        }
     }
 }

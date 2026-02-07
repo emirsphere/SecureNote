@@ -13,11 +13,13 @@ namespace SecureNote.Application.Services
     {
         private readonly INoteRepository _noteRepository;
         private readonly IEncryptionService _encryptionService;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public NoteService(INoteRepository noteRepository, IEncryptionService encryptionService)
+        public NoteService(INoteRepository noteRepository, IEncryptionService encryptionService, ICategoryRepository categoryRepository)
         {
             _noteRepository = noteRepository;
             _encryptionService = encryptionService;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<ResponseNote> CreateNoteAsync(NoteDto request, Guid userId)
@@ -79,20 +81,44 @@ namespace SecureNote.Application.Services
         public async Task<ResponseNote> GetNoteByIdAsync(Guid noteId, Guid userId)
         {
             var encryptednote = await _noteRepository.GetByIdAsync(noteId);
+
             if (encryptednote == null)
                 throw new NotFoundException("Not bulunamadı.");
+
             if (encryptednote.UserId != userId)
                 throw new UnauthorizedException("Bu işlem için yetkiniz yok.");
+
+            string decryptedTitle;
             string decryptedContent;
+
             try
             {
+                decryptedTitle = _encryptionService.Decrypt(encryptednote.Title);
                 decryptedContent = _encryptionService.Decrypt(encryptednote.Content);
             }
             catch
             {
-                throw new AppException("Not şifrelemesi çözülemedi.");
+                throw new AppException("Not şifrelemesi çözülemedi. Veri bozulmuş olabilir.");
             }
 
+            // Generic GetByIdAsync metodu ilişkili veriyi (Category) getirmez.
+            // Bu yüzden CategoryName'i manuel buluyoruz (Uygulamanın çökmesini önler)
+            string? categoryName = null;
+            if (encryptednote.CategoryId.HasValue)
+            {
+                var category = await _categoryRepository.GetByIdAsync(encryptednote.CategoryId.Value);
+                categoryName = category?.CategoryName;
+            }
+
+            return new ResponseNote
+            {
+                Id = encryptednote.Id,
+                Title = decryptedTitle,
+                Content = decryptedContent,
+                CreatedOn = encryptednote.CreatedOn,
+                CategoryId = encryptednote.CategoryId,
+                CategoryName = categoryName
+            };
         }
 
         public async Task UpdateNoteAsync(Guid noteId, UpdateNoteRequest request, Guid userId)
