@@ -10,6 +10,7 @@ namespace SecureNote.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
+
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -55,7 +56,7 @@ namespace SecureNote.API.Controllers
             return CreatedAtAction(nameof(GetMyCategories), new { id = createdCategory.Id }, createdCategory);
         }
 
-        [HttpPost]
+        [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -67,7 +68,7 @@ namespace SecureNote.API.Controllers
             return Ok(new { message = "Kategori başarıyla güncellendi." });
         }
 
-        [HttpPost]
+        [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

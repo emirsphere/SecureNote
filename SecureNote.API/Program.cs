@@ -58,6 +58,7 @@ builder.Services.AddScoped<IEncryptionService, AesEncryptionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
