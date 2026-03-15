@@ -24,13 +24,7 @@ namespace SecureNote.Application.Services
 
         public async Task<ResponseNote> CreateNoteAsync(NoteDto request, Guid userId)
         {
-            // 1. Validation (Doğrulama)
-            if (string.IsNullOrWhiteSpace(request.Title))
-                throw new ValidationException("Not başlığı boş olamaz.");
-
-            if (string.IsNullOrWhiteSpace(request.Content))
-                throw new ValidationException("Not içeriği boş olamaz.");
-
+            
             // 2. Kategori Sahiplik Kontrolü (Relational Security / IDOR Koruması)
             if (request.CategoryId.HasValue)
             {
@@ -43,7 +37,6 @@ namespace SecureNote.Application.Services
                     throw new UnauthorizedException("Bu kategoriye not ekleme yetkiniz yok.");
             }
 
-            // 3. Sadece içeriği şifrele (Kararımız gereği Title düz metin kalıyor)
             var encryptedContent = _encryptionService.Encrypt(request.Content);
 
             var newNote = new Note
@@ -139,13 +132,6 @@ namespace SecureNote.Application.Services
 
         public async Task UpdateNoteAsync(Guid noteId, UpdateNoteRequest request, Guid userId)
         {
-            // Validation
-            if (string.IsNullOrWhiteSpace(request.Title))
-                throw new ValidationException("Not başlığı boş olamaz.");
-
-            if (string.IsNullOrWhiteSpace(request.Content))
-                throw new ValidationException("Not içeriği boş olamaz.");
-
             var note = await _noteRepository.GetByIdAsync(noteId);
             if (note == null)
                 throw new NotFoundException("Not bulunamadı.");

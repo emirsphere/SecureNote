@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using SecureNote.API.Middleware;
 using SecureNote.Application.Interfaces;
 using SecureNote.Application.Services;
+using SecureNote.Application.Validation;
 using SecureNote.Application.Validators;
 using SecureNote.Infrastructure.Data;
 using SecureNote.Infrastructure.Services;
@@ -24,6 +25,9 @@ builder.Services.AddDbContext<SecureNoteDbContext>(options =>
 // 2. FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateNoteValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateNoteRequestValidator>();
 
 // 3. JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

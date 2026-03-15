@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using SecureNote.Application.DTOs;
+using System.Text.RegularExpressions;
 
 namespace SecureNote.Application.Validators
 {
@@ -12,7 +13,9 @@ namespace SecureNote.Application.Validators
             // Kullanıcı Adı Kuralları
             RuleFor(x => x.Username)
                 .NotEmpty().WithMessage("Kullanıcı adı boş geçilemez.")
-                .Length(3, 50).WithMessage("Kullanıcı adı 3 ile 50 karakter arasında olmalıdır.");
+                .Must(username => !string.IsNullOrWhiteSpace(username)).WithMessage("Kullanıcı adı boş geçilemez.")
+                .Length(3, 50).WithMessage("Kullanıcı adı 3 ile 50 karakter arasında olmalıdır.")
+                .Must(IsValidPasswordOrUsername).WithMessage("Kullanıcı adı geçersiz karakterler içeriyor.");
 
             // Email Kuralları
             RuleFor(x => x.Email)
@@ -23,7 +26,8 @@ namespace SecureNote.Application.Validators
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Şifre zorunludur.")
                 .MinimumLength(6).WithMessage("Şifre en az 6 karakter olmalıdır.")
-                // Zincirleme kural ekleyebiliriz:
+                .Must(password => !string.IsNullOrWhiteSpace(password)).WithMessage("Şifre boş geçilemez.")
+                .Must(IsValidPasswordOrUsername).WithMessage("Şifre geçersiz karakterler içeriyor.")
                 .Must(SifreGucluMu).WithMessage("Şifreniz en az bir büyük harf ve bir rakam içermelidir.");
         }
 
@@ -46,6 +50,19 @@ namespace SecureNote.Application.Validators
             }
 
             return hasUpperCase && hasDigit;
+        }
+        private bool IsValidPasswordOrUsername(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return false;
+            
+            foreach (char c in input)
+            {
+                if (char.IsWhiteSpace(c)) return false; // Boşluk karakteri var mı?
+            }
+
+            var hasScriptTag = Regex.IsMatch(input, @"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", RegexOptions.IgnoreCase);
+            var hasJavaScriptLiteral = input.Contains("javascript:", StringComparison.OrdinalIgnoreCase);
+            return !hasScriptTag && !hasJavaScriptLiteral;
         }
     }
 }

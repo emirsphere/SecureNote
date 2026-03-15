@@ -56,8 +56,7 @@ namespace SecureNote.Application.Services
                 throw new NotFoundException("Kategori bulunamadı.");
             if (category.UserId != userId)
                 throw new UnauthorizedException("Bu kategoriye erişim yetkiniz yok.");
-            if (string.IsNullOrWhiteSpace(request.CategoryName))
-                throw new ValidationException("Kategori adı boş olamaz.");
+            
 
             category.CategoryName = request.CategoryName;
             bool categoryNameExist = await _categoryRepository.IsCategoryNameExistsAsync(request.CategoryName, userId);
