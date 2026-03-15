@@ -97,12 +97,9 @@ namespace SecureNote.Application.Services
             if (encryptednote.UserId != userId)
                 throw new UnauthorizedException("Bu işlem için yetkiniz yok.");
 
-            string decryptedTitle;
             string decryptedContent;
-
             try
             {
-                decryptedTitle = _encryptionService.Decrypt(encryptednote.Title);
                 decryptedContent = _encryptionService.Decrypt(encryptednote.Content);
             }
             catch
@@ -122,7 +119,7 @@ namespace SecureNote.Application.Services
             return new ResponseNote
             {
                 Id = encryptednote.Id,
-                Title = decryptedTitle,
+                Title = encryptednote.Title,
                 Content = decryptedContent,
                 CreatedOn = encryptednote.CreatedOn,
                 CategoryId = encryptednote.CategoryId,
@@ -138,9 +135,18 @@ namespace SecureNote.Application.Services
 
             if (note.UserId != userId)
                 throw new UnauthorizedException("Bu işlem için yetkiniz yok.");
+            if(request.CategoryId.HasValue)
+            {
+                var category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value);
+                if (category == null)
+                    throw new NotFoundException("Belirtilen kategori bulunamadı.");
+                if (category.UserId != userId)
+                    throw new UnauthorizedException("Bu kategoriye not ekleme yetkiniz yok.");
+            }
 
             note.Title = request.Title;
             note.Content = _encryptionService.Encrypt(request.Content);
+            note.CategoryId = request.CategoryId;
             await _noteRepository.UpdateAsync(note);
         }
 
