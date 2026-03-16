@@ -16,10 +16,9 @@ namespace SecureNote.Infrastructure.Data
 
         public async Task<IReadOnlyList<Note>> GetNotesByUserIdAsync(Guid userId)
         {
-            // SQL Karşılığı: SELECT * FROM Notes WHERE UserId = '...'
             return await _dbContext.Notes
                 .Where(note => note.UserId == userId)
-                .Include(note => note.Category) // İlişkili Category verisini de dahil et
+                .Include(note => note.Category) 
                 .ToListAsync();
         }
     }

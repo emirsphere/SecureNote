@@ -30,7 +30,6 @@ namespace SecureNote.Application.Services
             var existingUser = await _userRepository.GetByEmailAsync(request.Email!);
             if (existingUser != null)
             {
-                // ✅ ValidationException kullan
                 throw new ValidationException("Bu e-posta adresi zaten kullanımda.");
             }
 
@@ -58,14 +57,12 @@ namespace SecureNote.Application.Services
             var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)
             {
-                // ✅ ValidationException kullan
                 throw new ValidationException("E-posta veya şifre hatalı.");
             }
 
             var isPasswordValid = _passwordHasher.Verify(password, user.PasswordHash!);
             if (!isPasswordValid)
             {
-                // ✅ ValidationException kullan
                 throw new ValidationException("E-posta veya şifre hatalı.");
             }
 

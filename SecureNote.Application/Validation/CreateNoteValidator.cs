@@ -16,7 +16,7 @@ namespace SecureNote.Application.Validation
 
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage("Not içeriği boş olamaz.")
-                .Must(content => !string.IsNullOrEmpty(content)).WithMessage("Not içeriği boş olamaz.")
+                .Must(content => !string.IsNullOrWhiteSpace(content)).WithMessage("Not içeriği boş olamaz.")
                 .Must(IsValidContent).WithMessage("Hatalı kullanım.")
                 .Length(1, 2000).WithMessage("Not içeriği maksimum 2000 karakter olabilir.");
                 

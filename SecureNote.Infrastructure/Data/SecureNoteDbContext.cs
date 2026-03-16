@@ -3,20 +3,17 @@ using SecureNote.Domain.Entities;
 
 namespace SecureNote.Infrastructure.Data
 {
-    // DbContext, Entity Framework'ün kalbidir.
     public class SecureNoteDbContext : DbContext
     {
-        // Constructor: Dışarıdan (API'den) ayarları (Connection String) alır.
+
         public SecureNoteDbContext(DbContextOptions<SecureNoteDbContext> options) : base(options)
         {
         }
 
-        // Veritabanındaki Tablolarımız
         public DbSet<User> Users { get; set; }
         public DbSet<Note> Notes { get; set; }
         public DbSet<Category> Categories { get; set; }
 
-        // İlişkileri ve kısıtlamaları burada ince ayar yaparız (Fluent API).
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -27,7 +24,7 @@ namespace SecureNote.Infrastructure.Data
             // User Tablosu Ayarları
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
-                .IsUnique(); // Aynı mail ile ikinci kez kayıt olunamaz! (Veritabanı seviyesinde koruma)
+                .IsUnique(); // Aynı mail ile ikinci kez kayıt olunamaz
 
             modelBuilder.Entity<User>()
                 .Property(u => u.Username)
@@ -37,7 +34,7 @@ namespace SecureNote.Infrastructure.Data
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
-            // İlişki Tanımı: Bir User'ın çok Note'u vardır.
+            // Bir User'ın çok Note'u vardır.
             modelBuilder.Entity<Note>()
                 .HasOne(n => n.User)
                 .WithMany(u => u.Notes)

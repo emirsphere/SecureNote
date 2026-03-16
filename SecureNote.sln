@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36717.8 d17.14
+VisualStudioVersion = 17.14.36717.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureNote.Domain", "SecureNote.Domain\SecureNote.Domain.csproj", "{848B8261-FFC3-439B-8C18-4273E396E344}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureNote.Infrastructure", "SecureNote.Infrastructure\SecureNote.Infrastructure.csproj", "{58E30EB0-04EE-49AD-B09B-43053C810186}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureNote.API", "SecureNote.API\SecureNote.API.csproj", "{70803B6B-0976-42E0-9A41-01FD88A5F2F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureNote.Application.Tests", "SecureNote.Application.Tests\SecureNote.Application.Tests.csproj", "{C65F2667-D016-4DB3-AE22-2CF3296DA9BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{70803B6B-0976-42E0-9A41-01FD88A5F2F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70803B6B-0976-42E0-9A41-01FD88A5F2F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70803B6B-0976-42E0-9A41-01FD88A5F2F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C65F2667-D016-4DB3-AE22-2CF3296DA9BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C65F2667-D016-4DB3-AE22-2CF3296DA9BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C65F2667-D016-4DB3-AE22-2CF3296DA9BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C65F2667-D016-4DB3-AE22-2CF3296DA9BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

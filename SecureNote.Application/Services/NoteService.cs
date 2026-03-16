@@ -25,7 +25,7 @@ namespace SecureNote.Application.Services
         public async Task<ResponseNote> CreateNoteAsync(NoteDto request, Guid userId)
         {
             
-            // 2. Kategori Sahiplik Kontrolü (Relational Security / IDOR Koruması)
+            // 2. Kategori Sahiplik Kontrolü
             if (request.CategoryId.HasValue)
             {
                 var category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value);
@@ -107,8 +107,7 @@ namespace SecureNote.Application.Services
                 throw new AppException("Not şifrelemesi çözülemedi. Veri bozulmuş olabilir.");
             }
 
-            // Generic GetByIdAsync metodu ilişkili veriyi (Category) getirmez.
-            // Bu yüzden CategoryName'i manuel buluyoruz (Uygulamanın çökmesini önler)
+            
             string? categoryName = null;
             if (encryptednote.CategoryId.HasValue)
             {

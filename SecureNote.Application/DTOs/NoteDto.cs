@@ -14,9 +14,7 @@ namespace SecureNote.Application.DTOs
     public class UpdateNoteRequest
     {
         public string Title { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
-
-        // YENİ EKLENEN: Kategori güncellemesi
+        public string Content { get; set; } = string.Empty; 
         public Guid? CategoryId { get; set; }
     }
 
@@ -28,7 +26,6 @@ namespace SecureNote.Application.DTOs
         public string Content { get; set; } = string.Empty;
         public DateTime CreatedOn { get; set; }
 
-        // YENİ EKLENEN: Notun kategori bilgisi (Kullanıcıya göstermek için)
         public Guid? CategoryId { get; set; }
         public string? CategoryName { get; set; }
     }

@@ -27,7 +27,6 @@ namespace SecureNote.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // ✅ Try-catch kaldırıldı - Middleware yakalayacak
             var result = await _authService.RegisterAsync(request);
             return CreatedAtAction(nameof(Register), new { id = result.Id }, result);
         }
@@ -43,7 +42,7 @@ namespace SecureNote.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            // ✅ Try-catch kaldırıldı - Middleware yakalayacak
+            //Middleware yakalayacak
             var token = await _authService.LoginAsync(request.Email, request.Password);
             return Ok(new { token = token });
         }

@@ -26,12 +26,10 @@ namespace SecureNote.Infrastructure.Services
         
         public string Encrypt(string plainText)
         {
-            // AES algoritmasını oluştur
+            // AES algoritması
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = Encoding.UTF8.GetBytes(_key);// bu kod bloğu ile şunu sağlıyoruz: AES algoritması için 256-bit (32 byte) anahtar kullanıyoruz.
-                // IV (Initialization Vector): Her şifrelemede rastgele üretilir, şifre çözülürken lazımdır.
-                // Güvenlik için IV'yi şifreli metnin başına ekleyip saklayacağız.
+                aesAlg.Key = Encoding.UTF8.GetBytes(_key);
                 aesAlg.GenerateIV();
 
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
@@ -39,7 +37,7 @@ namespace SecureNote.Infrastructure.Services
                 using (MemoryStream msEncrypt = new MemoryStream())
                 {
                     // Önce IV'yi yaz (ilk 16 byte)
-                    msEncrypt.Write(aesAlg.IV, 0, aesAlg.IV.Length);// neden böyle yazdık çünkü şifre çözme sırasında IV'ye ihtiyacımız olacak ve şifreli metinle birlikte saklamamız gerekiyor.
+                    msEncrypt.Write(aesAlg.IV, 0, aesAlg.IV.Length);
 
                     using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
@@ -68,7 +66,7 @@ namespace SecureNote.Infrastructure.Services
                 Array.Copy(fullCipher, 0, iv, 0, iv.Length);
                 aesAlg.IV = iv;
 
-                // Gerçek şifreli metni (kalan kısım) ayıkla
+                // Gerçek şifreli metni ayıkla
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
                 using (MemoryStream msDecrypt = new MemoryStream(fullCipher, 16, fullCipher.Length - 16))

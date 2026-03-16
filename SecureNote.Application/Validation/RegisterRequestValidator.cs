@@ -4,8 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace SecureNote.Application.Validators
 {
-    // AbstractValidator<T> sınıfından miras alıyoruz.
-    // T: Hangi sınıfı denetleyeceğimiz (RegisterRequest)
+
     public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
         public RegisterRequestValidator()
@@ -15,29 +14,26 @@ namespace SecureNote.Application.Validators
                 .NotEmpty().WithMessage("Kullanıcı adı boş geçilemez.")
                 .Must(username => !string.IsNullOrWhiteSpace(username)).WithMessage("Kullanıcı adı boş geçilemez.")
                 .Length(3, 50).WithMessage("Kullanıcı adı 3 ile 50 karakter arasında olmalıdır.")
-                .Must(IsValidPasswordOrUsername).WithMessage("Kullanıcı adı geçersiz karakterler içeriyor.");
+                .Must(IsValidUsername).WithMessage("Kullanıcı adı geçersiz karakterler içeriyor.");
 
             // Email Kuralları
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("E-posta adresi gereklidir.")
                 .EmailAddress().WithMessage("Lütfen geçerli bir e-posta adresi giriniz.");
 
-            // Şifre Kuralları (FluentValidation'ın gücü burada!)
+            // Şifre Kuralları
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Şifre zorunludur.")
                 .MinimumLength(6).WithMessage("Şifre en az 6 karakter olmalıdır.")
                 .Must(password => !string.IsNullOrWhiteSpace(password)).WithMessage("Şifre boş geçilemez.")
-                .Must(IsValidPasswordOrUsername).WithMessage("Şifre geçersiz karakterler içeriyor.")
+                .Must(IsValidPassword).WithMessage("Şifre geçersiz.")
                 .Must(SifreGucluMu).WithMessage("Şifreniz en az bir büyük harf ve bir rakam içermelidir.");
         }
 
-        // Özel Doğrulama Metodu (Custom Validation Logic)
-        // Data Annotations ile bunu yapmak çok zordur, burada çocuk oyuncağıdır.
         private bool SifreGucluMu(string password)
         {
             if (string.IsNullOrEmpty(password)) return false;
 
-            // Basit bir kontrol: Büyük harf ve rakam var mı?
             bool hasUpperCase = false;
             bool hasDigit = false;
 
@@ -51,18 +47,24 @@ namespace SecureNote.Application.Validators
 
             return hasUpperCase && hasDigit;
         }
-        private bool IsValidPasswordOrUsername(string input)
+        private bool IsValidUsername(string input)
         {
             if (string.IsNullOrEmpty(input)) return false;
-            
-            foreach (char c in input)
-            {
-                if (char.IsWhiteSpace(c)) return false; // Boşluk karakteri var mı?
-            }
+
+            if (input.Any(char.IsWhiteSpace)) return false;
 
             var hasScriptTag = Regex.IsMatch(input, @"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", RegexOptions.IgnoreCase);
             var hasJavaScriptLiteral = input.Contains("javascript:", StringComparison.OrdinalIgnoreCase);
             return !hasScriptTag && !hasJavaScriptLiteral;
+        }
+        private bool IsValidPassword(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return false;
+
+            var hasScriptTag = Regex.IsMatch(input, @"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", RegexOptions.IgnoreCase);
+            var hasJavaScriptLiteral = input.Contains("javascript:", StringComparison.OrdinalIgnoreCase);
+            return !hasScriptTag && !hasJavaScriptLiteral;
+
         }
     }
 }

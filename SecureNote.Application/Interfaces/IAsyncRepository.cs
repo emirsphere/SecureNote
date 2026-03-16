@@ -5,9 +5,7 @@ using SecureNote.Domain.Entities;
 
 namespace SecureNote.Application.Interfaces
 {
-    // <T> nedir? -> Bu interface herhangi bir varlık tipiyle çalışabilir demek.
-    // where T : BaseEntity -> Kural koyuyoruz: T, mutlaka BaseEntity'den türemiş olmalı.
-    // Böylece T'nin içinde kesinlikle "Id" alanı olduğunu garanti ederiz.
+
     public interface IAsyncRepository<T> where T : BaseEntity
     {
         // ID'ye göre tek bir kayıt getir

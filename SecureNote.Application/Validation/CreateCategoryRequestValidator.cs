@@ -10,7 +10,7 @@ namespace SecureNote.Application.Validation
             RuleFor(x => x.CategoryName)
                 .NotEmpty().WithMessage("Kategori boş olamaz.")
                 .Must(title => !string.IsNullOrWhiteSpace(title)).WithMessage("Kategori boş olamaz.")
-                .Length(1, 100).WithMessage("Kategori 100 karakter olabilir.");
+                .Length(1, 100).WithMessage("Kategori maksimum 100 karakter olabilir.");
         }
     }
 }

@@ -70,7 +70,7 @@ builder.Services.AddEndpointsApiExplorer();
 // 5. Swagger Konfigürasyonu
 builder.Services.AddSwaggerGen(c =>
 {
-    // Mühendislik Dokunuşu: Kullanıcıyı doğru format için yönlendiriyoruz.
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
@@ -101,7 +101,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 🔴 KRİTİK: Exception Handling Middleware en başa gelmelidir!
+//Exception Handling Middleware en başa gelmeli.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -112,10 +112,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// --- KRİTİK SIRALAMA --- 
+
 app.UseAuthentication(); // Kimlik Doğrulama
 app.UseAuthorization();  // Yetkilendirme
-// -----------------------
+
 
 app.MapControllers();
 
