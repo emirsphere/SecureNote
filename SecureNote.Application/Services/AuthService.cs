@@ -32,7 +32,11 @@ namespace SecureNote.Application.Services
             {
                 throw new ValidationException("Bu e-posta adresi zaten kullanımda.");
             }
-
+            var existingUsername = await _userRepository.GetByUsernameAsync(request.Username!);
+            if (existingUsername != null)
+            {
+                throw new ValidationException("Bu kullanıcı adı zaten kullanımda.");
+            }
             var passwordHash = _passwordHasher.Hash(request.Password!);
 
             var newUser = new User

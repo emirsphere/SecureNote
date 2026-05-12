@@ -140,16 +140,20 @@ namespace SecureNote.Application.Tests
             var noteId = Guid.NewGuid();
             var categoryId = Guid.NewGuid();
 
-            var fakeNote = new Faker<Note>()
-                .RuleFor(n => n.Id, f => noteId)
-                .RuleFor(n => n.Title, f => f.Lorem.Sentence()) 
-                .RuleFor(n => n.Content, f => "8f4d0a7d0caa...")
-                .RuleFor(n => n.UserId, f => ownerId)
-                .RuleFor(n => n.CategoryId, f => categoryId)
-                .RuleFor(n => n.CreatedOn, f => f.Date.Past())
-                .Generate();
             
 
+            var request = new NoteDto
+            {
+                Title = "Okul",
+                Content = "Sınavlar yaklaştı",
+                CategoryId = categoryId
+            };
+            _mockCategoryRepo.Setup(repo => repo.GetByIdAsync(categoryId)).ReturnsAsync(new Category { Id = categoryId, UserId = ownerId });
+
+            Func<Task> act = async () => await _noteService.CreateNoteAsync(request, userId);
+
+            await act.Should().ThrowAsync<UnauthorizedException>()
+                     .WithMessage("Bu kategoriye not ekleme yetkiniz yok.");
 
 
         }

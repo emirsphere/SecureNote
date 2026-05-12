@@ -16,5 +16,10 @@ namespace SecureNote.Infrastructure.Data
         {        
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+
+        public async Task<User?> GetByUsernameAsync(string username)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
+        }
     }
 }

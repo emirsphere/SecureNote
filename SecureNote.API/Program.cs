@@ -11,6 +11,7 @@ using SecureNote.Application.Validation;
 using SecureNote.Application.Validators;
 using SecureNote.Infrastructure.Data;
 using SecureNote.Infrastructure.Services;
+using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,8 +21,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<SecureNoteDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           // 1. Üretilen SQL sorgularını konsola yazdırır
+           .LogTo(Console.WriteLine, LogLevel.Information)
+           // 2. SQL sorgusuna giden parametreleri (Id'leri vs.) gizlemek yerine açıkça gösterir
+           .EnableSensitiveDataLogging()
+);  
 // 2. FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();

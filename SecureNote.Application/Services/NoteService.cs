@@ -14,12 +14,15 @@ namespace SecureNote.Application.Services
         private readonly INoteRepository _noteRepository;
         private readonly IEncryptionService _encryptionService;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ICacheService _cacheService;
 
-        public NoteService(INoteRepository noteRepository, IEncryptionService encryptionService, ICategoryRepository categoryRepository)
+        public NoteService(INoteRepository noteRepository, IEncryptionService encryptionService, ICategoryRepository categoryRepository, ICacheService cacheService)
         {
             _noteRepository = noteRepository;
             _encryptionService = encryptionService;
             _categoryRepository = categoryRepository;
+            _cacheService = cacheService;
+
         }
 
         public async Task<ResponseNote> CreateNoteAsync(NoteDto request, Guid userId)

@@ -8,5 +8,6 @@ namespace SecureNote.Application.Interfaces
     {
 
         Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetByUsernameAsync(string username);
     }
 }
